@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <title>Document</title>
+    <style>
+        #messagebox{
+            border:1px solid black;
+            height:300px;
+            overflow:scroll;
+            position:relative; bottom:0;
+        }
+        h4, p{
+            display:inline-block;
+            margin-bottom:5px;
+            margin-top:1px;
+        }
+        #message{
+            width:600px;
+            height:100px;
+            margin-left:300px;
+        }
+        div{
+            margin-top:0px;
+            margin-bottom:0px;
+            padding:0px;
+        }
+    </style>
+    <script>
+        $(document).ready(function(){
+            function updateScroll(){
+                var element = document.getElementById('messagebox');
+                element.scrollTop = element.scrollHeight;
+            }
+            $('form').submit(false);
+            var socket= io();
+            $('form').submit(function(){
+                socket.emit('new_message', {name:name,message:$('#message').val()})
+            });
+            socket.on('create_message', function(data){
+                console.log(data.message);
+                $('#messagebox').append(`<h4>${data.name}:</h4> <p> ${data.message}</p>`)
+                $('#messagebox').append('<div></div');
+                updateScroll();
+            })
+            socket.on('historyfill', function(data){
+                for ( var i =0; i < data.length; i++){
+                $('#messagebox').append(`<h4>${data[i].name}: </h4><p> ${data[i].message}</p>`);
+                $('#messagebox').append('<div></div');
+                }
+                updateScroll();
+            })
+            let name = prompt("Your Name ");
+        });
+    </script>
+</head>
+<body>
+    <h1>Conversation Board</h1>
+    <div id="messagebox">
+        <!-- <h6></h6>
+        <p>message placeholder</p> -->
+    </div>
+    <form action = "/">
+    <input id= "message" type ="text" name= "message">
+    <input type="submit" value = "Send">
+    </form>
+</body>
+</html>
